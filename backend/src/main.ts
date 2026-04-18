@@ -26,8 +26,6 @@ export const createApp = async (expressInstance) => {
     }),
   );
 
-  app.setGlobalPrefix("api");
-
   await app.init();
   return app;
 };
