@@ -1,9 +1,16 @@
 import { NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { AppModule } from "./app.module";
+import { ExpressAdapter } from "@nestjs/platform-express";
+import express from "express";
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+const server = express();
+
+export const createApp = async (expressInstance) => {
+  const app = await NestFactory.create(
+    AppModule,
+    new ExpressAdapter(expressInstance),
+  );
 
   app.enableCors({
     origin: "*",
@@ -21,8 +28,17 @@ async function bootstrap() {
 
   app.setGlobalPrefix("api");
 
+  await app.init();
+  return app;
+};
+
+if (process.env.NODE_ENV !== "production") {
   const port = process.env.PORT || 3001;
-  await app.listen(port);
-  console.log(`🚀 Backend running on http://localhost:${port}`);
+  createApp(server).then((app) =>
+    app.listen(port, () =>
+      console.log(` Backend running on http://localhost:${port}`),
+    ),
+  );
 }
-bootstrap();
+
+export default server;
