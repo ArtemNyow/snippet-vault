@@ -31,7 +31,6 @@ async function bootstrapExpress() {
   return expressApp;
 }
 
-// Serverless handler для Vercel
 export default async function handler(req: any, res: any) {
   if (!cachedServer) {
     cachedServer = await bootstrapExpress();
@@ -39,7 +38,6 @@ export default async function handler(req: any, res: any) {
   cachedServer(req, res);
 }
 
-// Локальний запуск (як і раніше)
 if (process.env.NODE_ENV !== "production") {
   const port = process.env.PORT || 3001;
   bootstrapExpress().then((expressApp) => {
