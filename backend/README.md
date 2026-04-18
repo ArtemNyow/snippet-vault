@@ -2,6 +2,8 @@
 
 NestJS API для зберігання та управління сніпетами.
 
+**Backend URL:** https://snippet-vault-backend-g7pm.vercel.app
+
 ## Швидкий старт
 
 ```bash
@@ -15,22 +17,8 @@ npm run start:dev
 ## Змінні оточення (.env)
 
 ```env
-MONGODB_URI=mongodb+srv://admin:admin@test.1a0uqho.mongodb.net/?appName=test
+MONGODB_URI=mongodb+srv://test:test@test.1a0uqho.mongodb.net/?appName=test
 PORT=3001
-```
-
-## Деплой на Vercel
-
-1. Запуш код на GitHub
-2. Імпортуй проєкт у Vercel
-3. Додай змінну `MONGODB_URI` в налаштуваннях проекту
-4. Деплой запуститься автоматично
-
-Або через CLI:
-
-```bash
-npm i -g vercel
-vercel
 ```
 
 ## API Endpoints
