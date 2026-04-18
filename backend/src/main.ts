@@ -4,21 +4,22 @@ import { AppModule } from "./app.module";
 import { ExpressAdapter } from "@nestjs/platform-express";
 import express from "express";
 
-const server = express();
+let cachedServer: express.Express | null = null;
 
-export const createApp = async (expressInstance) => {
-  const app = await NestFactory.create(
+async function bootstrapExpress() {
+  const expressApp = express();
+  const nestApp = await NestFactory.create(
     AppModule,
-    new ExpressAdapter(expressInstance),
+    new ExpressAdapter(expressApp),
   );
 
-  app.enableCors({
+  nestApp.enableCors({
     origin: "*",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
   });
 
-  app.useGlobalPipes(
+  nestApp.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       transform: true,
@@ -26,17 +27,24 @@ export const createApp = async (expressInstance) => {
     }),
   );
 
-  await app.init();
-  return app;
-};
-
-if (process.env.NODE_ENV !== "production") {
-  const port = process.env.PORT || 3001;
-  createApp(server).then((app) =>
-    app.listen(port, () =>
-      console.log(` Backend running on http://localhost:${port}`),
-    ),
-  );
+  await nestApp.init();
+  return expressApp;
 }
 
-export default server;
+// Serverless handler для Vercel
+export default async function handler(req: any, res: any) {
+  if (!cachedServer) {
+    cachedServer = await bootstrapExpress();
+  }
+  cachedServer(req, res);
+}
+
+// Локальний запуск (як і раніше)
+if (process.env.NODE_ENV !== "production") {
+  const port = process.env.PORT || 3001;
+  bootstrapExpress().then((expressApp) => {
+    expressApp.listen(port, () =>
+      console.log(`Backend running on http://localhost:${port}`),
+    );
+  });
+}
